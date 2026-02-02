@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Andbad md Bot Pairing</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0ea5e9;
+      --primary-dark: #0369a1;
+      --secondary: #06b6d4;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      --gradient-dark: linear-gradient(135deg, #1e40af 0%, #0c4a6e 100%);
+      --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
+      --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.5);
+      --glow-primary: 0 0 40px rgba(14, 165, 233, 0.3);
+      --glow-secondary: 0 0 60px rgba(6, 182, 212, 0.4);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: var(--background);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--text-primary);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .tech-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, #0f172a 0%, #0c1a2d 100%);
+    }
+
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14, 165, 233, 0.1) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: -1;
+      opacity: 0.3;
+      mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
+    }
+
+    .circuit-lines {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.1;
+    }
+
+    .circuit-line {
+      position: absolute;
+      background: transparent;
+      border: 1px solid var(--secondary);
+    }
+
+    .line-1 {
+      top: 20%;
+      left: 10%;
+      width: 200px;
+      height: 100px;
+      border-radius: 50% 50% 0 0;
+      border-bottom: none;
+    }
+
+    .line-2 {
+      bottom: 30%;
+      right: 15%;
+      width: 150px;
+      height: 150px;
+      border-radius: 0 50% 50% 0;
+      border-left: none;
+    }
+
+    .line-3 {
+      top: 50%;
+      left: 20%;
+      width: 100px;
+      height: 200px;
+      border-radius: 50% 0 0 50%;
+      border-right: none;
+    }
+
+    .floating-shapes {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .floating-shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.2;
+      animation: float 25s ease-in-out infinite;
+    }
+
+    .shape-1 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, var(--primary) 0%, transparent 70%);
+      top: -100px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+
+    .shape-2 {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, var(--secondary) 0%, transparent 70%);
+      bottom: -150px;
+      right: -100px;
+      animation-delay: -8s;
+    }
+
+    .shape-3 {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, var(--accent) 0%, transparent 70%);
+      top: 50%;
+      left: 70%;
+      animation-delay: -15s;
+    }
+
+    @keyframes float {
+      0%, 100% { 
+        transform: translate(0, 0) rotate(0deg) scale(1);
+      }
+      33% { 
+        transform: translate(30px, -50px) rotate(120deg) scale(1.1);
+      }
+      66% { 
+        transform: translate(-20px, 30px) rotate(240deg) scale(0.9);
+      }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      animation: fadeInUp 0.8s ease-out 0.3s forwards;
+      will-change: opacity, transform;
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes fadeInUp {
+      0% { 
+        opacity: 0; 
+        transform: translateY(30px) scale(0.95);
+      }
+      100% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .dashboard-card {
+      position: relative;
+      background: rgba(30, 41, 59, 0.85);
+      padding: 40px 35px;
+      border-radius: 24px;
+      text-align: center;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      box-shadow: 
+        var(--shadow-xl),
+        var(--glow-primary),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 0 30px rgba(14, 165, 233, 0.1);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: var(--gradient-primary);
+      border-radius: 26px;
+      z-index: -1;
+      opacity: 0.3;
+      filter: blur(10px);
+      animation: borderPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes borderPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    .dashboard-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+      opacity: 0.8;
+      border-radius: 24px 24px 0 0;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 
+        var(--shadow-xl),
+        var(--glow-secondary),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 0 40px rgba(14, 165, 233, 0.15);
+      border-color: rgba(14, 165, 233, 0.6);
+    }
+
+    .card-header {
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .bot-avatar {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+      position: relative;
+      animation: avatarFloat 6s ease-in-out infinite;
+      filter: drop-shadow(0 10px 20px rgba(14, 165, 233, 0.3));
+    }
+
+    @keyframes avatarFloat {
+      0%, 100% { 
+        transform: translateY(0) rotate(0deg) scale(1);
+      }
+      33% { 
+        transform: translateY(-15px) rotate(5deg) scale(1.05);
+      }
+      66% { 
+        transform: translateY(-8px) rotate(-5deg) scale(0.95);
+      }
+    }
+
+    .avatar-container {
+      width: 100%;
+      height: 100%;
+      background: var(--gradient-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 
+        0 15px 35px rgba(14, 165, 233, 0.4),
+        0 0 0 6px rgba(14, 165, 233, 0.2),
+        0 0 0 12px rgba(14, 165, 233, 0.1),
+        inset 0 0 30px rgba(255, 255, 255, 0.1);
+    }
+
+    .avatar-screen {
+      width: 70px;
+      height: 40px;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(14, 165, 233, 0.5);
+      box-shadow: 
+        inset 0 0 20px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(14, 165, 233, 0.3);
+    }
+
+    .screen-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--secondary);
+      border-radius: 50%;
+      animation: particleMove 4s linear infinite;
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+
+    @keyframes particleMove {
+      0% { 
+        transform: translateY(40px) translateX(-20px) scale(0.5); 
+        opacity: 0; 
+      }
+      10% { 
+        opacity: 1; 
+        transform: scale(1);
+      }
+      90% { 
+        opacity: 1; 
+      }
+      100% { 
+        transform: translateY(-20px) translateX(40px) scale(0.5); 
+        opacity: 0; 
+      }
+    }
+
+    .particle:nth-child(2n) {
+      background: var(--primary);
+      animation-delay: 0.5s;
+      animation-duration: 3s;
+    }
+
+    .particle:nth-child(3n) {
+      background: var(--accent);
+      animation-delay: 1s;
+      animation-duration: 5s;
+    }
+
+    .card-title {
+      font-size: 36px;
+      font-weight: 900;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      position: relative;
+      display: inline-block;
+      text-shadow: 0 5px 15px rgba(14, 165, 233, 0.3);
+    }
+
+    .card-title::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--gradient-primary);
+      border-radius: 4px;
+      animation: widthPulse 3s infinite alternate;
+      box-shadow: 0 0 10px var(--primary);
+    }
+
+    @keyframes widthPulse {
+      0% { 
+        width: 80px; 
+        box-shadow: 0 0 10px var(--primary);
+      }
+      100% { 
+        width: 140px; 
+        box-shadow: 0 0 20px var(--secondary);
+      }
+    }
+
+    .card-subtitle {
+      color: var(--text-secondary);
+      font-size: 17px;
+      font-weight: 400;
+      margin-bottom: 35px;
+      max-width: 320px;
+      line-height: 1.6;
+      opacity: 0.9;
+      padding: 0 10px;
+    }
+
+    .input-group {
+      width: 100%;
+      margin-bottom: 30px;
+    }
+
+    .input-label {
+      display: block;
+      text-align: left;
+      color: var(--text-secondary);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      padding-left: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-label i {
+      color: var(--primary);
+      margin-right: 8px;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      padding: 4px;
+      border-radius: 18px;
+      border: 1px solid rgba(14, 165, 233, 0.4);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 
+        inset 0 2px 15px rgba(0, 0, 0, 0.3),
+        0 8px 25px rgba(15, 23, 42, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .input-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.1), transparent);
+      transition: left 0.7s ease;
+    }
+
+    .input-wrapper:focus-within::before {
+      left: 100%;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: rgba(14, 165, 233, 0.8);
+      box-shadow: 
+        inset 0 2px 15px rgba(0, 0, 0, 0.3),
+        0 12px 30px rgba(14, 165, 233, 0.3);
+      transform: translateY(-3px);
+    }
+
+    .phone-input {
+      flex: 1;
+      padding: 20px 22px;
+      border: none;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.95);
+      color: var(--text-primary);
+      font-size: 17px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      font-family: 'Segoe UI', monospace;
+      letter-spacing: 1.5px;
+      min-width: 0;
+    }
+
+    .phone-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+      opacity: 0.7;
+    }
+
+    .phone-input:focus {
+      outline: none;
+      background: rgba(40, 51, 69, 0.95);
+      box-shadow: 
+        0 0 0 3px rgba(14, 165, 233, 0.2),
+        inset 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .generate-btn {
+      padding: 20px 36px;
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+      box-shadow: 
+        0 10px 25px rgba(14, 165, 233, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .generate-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.7s ease;
+    }
+
+    .generate-btn:hover::before {
+      left: 100%;
+    }
+
+    .generate-btn:hover {
+      background: var(--gradient-secondary);
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 
+        0 15px 35px rgba(6, 182, 212, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .generate-btn:active {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 
+        0 8px 20px rgba(14, 165, 233, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .generate-btn i {
+      font-size: 20px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    .result-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      min-height: 120px;
+    }
+
+    .loader-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+      padding: 40px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 20px;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      width: 100%;
+      backdrop-filter: blur(10px);
+    }
+
+    .modern-loader {
+      width: 80px;
+      height: 80px;
+      position: relative;
+    }
+
+    .loader-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid transparent;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+      box-shadow: 0 0 10px var(--primary);
+    }
+
+    .loader-ring:nth-child(2) {
+      border-top-color: var(--secondary);
+      animation-delay: 0.3s;
+      width: 85%;
+      height: 85%;
+      top: 7.5%;
+      left: 7.5%;
+    }
+
+    .loader-ring:nth-child(3) {
+      border-top-color: var(--accent);
+      animation-delay: 0.6s;
+      width: 70%;
+      height: 70%;
+      top: 15%;
+      left: 15%;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(720deg); }
+    }
+
+    .loader-text {
+      color: var(--text-secondary);
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      position: relative;
+      letter-spacing: 0.5px;
+    }
+
+    .loader-text::after {
+      content: '';
+      animation: loadingDots 2s infinite;
+    }
+
+    @keyframes loadingDots {
+      0%, 20% { content: ''; }
+      40% { content: '.'; }
+      60% { content: '..'; }
+      80%, 100% { content: '...'; }
+    }
+
+    .code-display {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 20px;
+      padding: 30px;
+      width: 100%;
+      border: 1px solid rgba(14, 165, 233, 0.4);
+      box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.4),
+        var(--glow-primary),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      animation: slideInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    @keyframes slideInUp {
+      0% { 
+        opacity: 0; 
+        transform: translateY(30px) scale(0.95);
+      }
+      100% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .code-label {
+      color: var(--text-secondary);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .code-label i {
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    .code-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: 4px;
+      padding: 25px 20px;
+      background: rgba(30, 41, 59, 0.9);
+      border-radius: 16px;
+      margin-bottom: 25px;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 2px 10px rgba(14, 165, 233, 0.3);
+      box-shadow: 
+        inset 0 0 20px rgba(0, 0, 0, 0.5),
+        0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .code-value::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(14, 165, 233, 0.1) 50%,
+        transparent 70%
+      );
+      animation: codeShine 4s infinite linear;
+      z-index: 1;
+    }
+
+    @keyframes codeShine {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .code-highlight {
+      color: #22d3ee;
+      font-weight: 900;
+      position: relative;
+      z-index: 2;
+      text-shadow: 
+        0 0 20px rgba(34, 211, 238, 0.7),
+        0 0 40px rgba(34, 211, 238, 0.5);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      width: 100%;
+    }
+
+    .copy-btn {
+      flex: 1;
+      padding: 18px;
+      background: rgba(30, 41, 59, 0.95);
+      color: var(--text-primary);
+      border: 1px solid rgba(14, 165, 233, 0.4);
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .copy-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(14, 165, 233, 0.1);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    .copy-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .copy-btn:hover {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
+    }
+
+    .copy-btn i {
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .copy-btn.copied {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+      animation: successPulse 0.6s ease;
+    }
+
+    .copy-btn.copied i {
+      color: var(--accent);
+      animation: iconBounce 0.6s ease;
+    }
+
+    @keyframes successPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+
+    .info-message {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(14, 165, 233, 0.08);
+      border-radius: 16px;
+      border-left: 4px solid var(--primary);
+      text-align: left;
+      width: 100%;
+      line-height: 1.6;
+      border-right: 1px solid rgba(14, 165, 233, 0.1);
+      border-top: 1px solid rgba(14, 165, 233, 0.1);
+      border-bottom: 1px solid rgba(14, 165, 233, 0.1);
+    }
+
+    .info-message i {
+      color: var(--primary);
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    .security-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 25px;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      animation: badgeFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes badgeFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .security-badge i {
+      font-size: 14px;
+      animation: lockShake 2s ease-in-out infinite;
+    }
+
+    @keyframes lockShake {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    .status-indicator {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: statusPulse 2s infinite;
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    @media (max-width: 520px) {
+      .container {
+        padding: 15px;
+      }
+
+      .dashboard-card {
+        padding: 30px 25px;
+        border-radius: 20px;
+      }
+
+      .bot-avatar {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 25px;
+      }
+
+      .avatar-screen {
+        width: 55px;
+        height: 35px;
+      }
+
+      .card-title {
+        font-size: 30px;
+      }
+
+      .card-subtitle {
+        font-size: 15px;
+        margin-bottom: 25px;
+      }
+
+      .input-wrapper {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+      }
+
+      .phone-input,
+      .generate-btn {
+        width: 100%;
+        padding: 18px;
+      }
+
+      .phone-input {
+        text-align: center;
+      }
+
+      .code-value {
+        font-size: 24px;
+        letter-spacing: 3px;
+        padding: 20px 15px;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .status-indicator {
+        top: 20px;
+        right: 20px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="tech-background"></div>
+  <div class="grid-overlay"></div>
+  <div class="circuit-lines">
+    <div class="circuit-line line-1"></div>
+    <div class="circuit-line line-2"></div>
+    <div class="circuit-line line-3"></div>
+  </div>
+  <div class="floating-shapes">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <div class="dashboard-card">
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>SYSTEM ONLINE</span>
+      </div>
+      
+      <div class="card-header">
+        <div class="bot-avatar">
+          <div class="avatar-container">
+            <div class="avatar-screen">
+              <div class="screen-particles" id="particles"></div>
+            </div>
+          </div>
+        </div>
+        
+        <h1 class="card-title">ANDBAD MD BOT</h1>
+        <p class="card-subtitle">Generate secure pairing codes for WhatsApp integration with military-grade encryption</p>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">
+          <i class="fas fa-mobile-alt"></i> WhatsApp Number
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="tel" 
+            id="number" 
+            class="phone-input"
+            placeholder="2557xxxxxxxx"
+            pattern="[0-9]*"
+            inputmode="numeric"
+            maxlength="12"
+          >
+          <button id="submit" class="generate-btn">
+            <i class="fas fa-bolt"></i> Generate Code
+          </button>
+        </div>
+      </div>
+
+      <div class="loader-container" id="waiting-message">
+        <div class="modern-loader">
+          <div class="loader-ring"></div>
+          <div class="loader-ring"></div>
+          <div class="loader-ring"></div>
+        </div>
+        <div class="loader-text">Securely generating your pairing code</div>
+      </div>
+
+      <main class="result-container" id="pair"></main>
+
+      <div class="info-message">
+        <i class="fas fa-shield-alt"></i>
+        Your pairing code is securely generated using military-grade encryption and will expire in 5 minutes for maximum security.
+      </div>
+
+      <div class="security-badge">
+        <i class="fas fa-lock"></i>
+        <span>End-to-End Encrypted</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+  <script>
+    let resultContainer = document.getElementById("pair");
+    let submitBtn = document.getElementById("submit");
+    let phoneInput = document.getElementById("number");
+    let waitingMessage = document.getElementById("waiting-message");
+    let particlesContainer = document.getElementById("particles");
+
+    // Create screen particles
+    function createParticles() {
+      particlesContainer.innerHTML = '';
+      for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.cssText = `
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          animation-delay: ${Math.random() * 2}s;
+          animation-duration: ${Math.random() * 3 + 2}s;
+        `;
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    async function copyCode(button) {
+      const codeElement = document.querySelector('.code-highlight');
+      if (!codeElement) return;
+      
+      const text = codeElement.innerText.replace(/\s/g, '');
+      try {
+        await navigator.clipboard.writeText(text);
+        
+        button.classList.add('copied');
+        button.innerHTML = '<i class="fas fa-check"></i> Code Copied!';
+        
+        setTimeout(() => {
+          button.classList.remove('copied');
+          button.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
+        }, 2000);
+      } catch (err) {
+        button.innerHTML = '<i class="fas fa-exclamation"></i> Failed!';
+        setTimeout(() => {
+          button.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
+        }, 2000);
+      }
+    }
+
+    submitBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      
+      // Button click animation
+      submitBtn.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        submitBtn.style.transform = '';
+      }, 150);
+
+      if (!phoneInput.value) {
+        resultContainer.innerHTML = `
+          <div style="color: var(--danger); font-weight: 600; text-align: center; padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; border: 1px solid var(--danger);">
+            <i class="fas fa-exclamation-circle"></i> Please enter your WhatsApp number
+          </div>
+        `;
+        return;
+      }
+
+      const cleanNumber = phoneInput.value.replace(/[^0-9]/g, "");
+      
+      if (cleanNumber.length < 11) {
+        resultContainer.innerHTML = `
+          <div style="color: var(--danger); font-weight: 600; text-align: center; padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; border: 1px solid var(--danger);">
+            <i class="fas fa-times-circle"></i> Invalid number format
+          </div>
+        `;
+        return;
+      }
+
+      // Format number display
+      let formattedNumber = "";
+      if (cleanNumber.startsWith("255")) {
+        formattedNumber = `+${cleanNumber}`;
+      } else {
+        formattedNumber = `+255${cleanNumber}`;
+      }
+      
+      phoneInput.value = formattedNumber;
+      phoneInput.style.color = 'var(--accent)';
+      phoneInput.style.fontWeight = '600';
+      phoneInput.style.textShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+      
+      // Show loading
+      waitingMessage.style.display = 'flex';
+      resultContainer.innerHTML = '';
+      
+      try {
+        setTimeout(async () => {
+          try {
+            let { data } = await axios(`/code?number=${cleanNumber}`);
+            waitingMessage.style.display = 'none';
+            let code = data.code || "SERVICE_OFFLINE";
+            
+            // Format code with spaces every 4 characters
+            let formattedCode = code.match(/.{1,4}/g).join(' ');
+            
+            resultContainer.innerHTML = `
+              <div class="code-display">
+                <div class="code-label">
+                  <i class="fas fa-key"></i> Your Secure Pairing Code
+                </div>
+                <div class="code-value">
+                  <span class="code-highlight">${formattedCode}</span>
+                </div>
+                <div class="action-buttons">
+                  <button class="copy-btn" onclick="copyCode(this)">
+                    <i class="fas fa-copy"></i> Copy Code
+                  </button>
+                </div>
+                <div style="color: var(--text-muted); font-size: 13px; margin-top: 20px; text-align: center; padding: 15px; background: rgba(14, 165, 233, 0.05); border-radius: 10px;">
+                  <i class="fas fa-clock"></i> Valid for 5 minutes • <i class="fas fa-sync-alt"></i> One-time use • <i class="fas fa-shield-alt"></i> Encrypted
+                </div>
+              </div>
+            `;
+          } catch (error) {
+            waitingMessage.style.display = 'none';
+            resultContainer.innerHTML = `
+              <div style="color: var(--danger); font-weight: 600; text-align: center; padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; border: 1px solid var(--danger);">
+                <i class="fas fa-exclamation-triangle"></i> Network error. Please try again.
+              </div>
+            `;
+          }
+        }, 1500);
+        
+      } catch (error) {
+        waitingMessage.style.display = 'none';
+        resultContainer.innerHTML = `
+          <div style="color: var(--danger); font-weight: 600; text-align: center; padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; border: 1px solid var(--danger);">
+            <i class="fas fa-exclamation-triangle"></i> Error generating code
+          </div>
+        `;
+      }
+    });
+
+    // Input focus effects
+    phoneInput.addEventListener("focus", () => {
+      document.querySelector('.input-wrapper').classList.add('focused');
+    });
+
+    phoneInput.addEventListener("blur", () => {
+      document.querySelector('.input-wrapper').classList.remove('focused');
+    });
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      
+      // Animate container entrance
+      requestAnimationFrame(() => {
+        document.querySelector('.container').style.opacity = 1;
+      });
+
+      // Auto-format phone number
+      phoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/[^0-9]/g, '');
+        if (value.startsWith('0')) {
+          value = '255' + value.substring(1);
+        }
+        if (value.length > 12) {
+          value = value.substring(0, 12);
+        }
+        phoneInput.value = value;
+      });
+
+      // Refresh particles every 10 seconds
+      setInterval(createParticles, 10000);
+    });
+  </script>
+</body>
+</html>
