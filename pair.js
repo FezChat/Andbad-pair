@@ -151,11 +151,9 @@ router.get('/', async (req, res) => {
                         });
 
                         const infoMessage = `  
-📌 *Need Assistance? Reach Out Anytime:*  
-• 👑 *Owner:* https://wa.me/255752593977  
+📌 *Need Assistance? Reach Out Anytime:*   
 • 💬 *Group Chat:* https://chat.whatsapp.com/DU79JfdnOI83ZFVAyD74Mo?mode=gi_t  
-• 📢 *Channel:*  https://whatsapp.com/channel/0029VbC9TRPCnA80RfS3Oi1V
-• 📸 *Instagram:* https://www.instagram.com/frediezra  
+• 📢 *Channel:*  https://whatsapp.com/channel/0029VbC9TRPCnA80RfS3Oi1V  
 • 💻 *GitHub Repo:* https://github.com/Mrandbad/ANDBAD-MD-V2
 
 🧠 *Support Andbadtz Project:*  
